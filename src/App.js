@@ -1,6 +1,7 @@
 import React from 'react';
 import { withTooltip } from './source/';
 import './source/style.css';
+import { TYPES } from './source/constants';
 
 function App({ refTooltip }) {
   return (
@@ -9,6 +10,7 @@ function App({ refTooltip }) {
         type="button"
         data-tooltip-title="Some title 1"
         data-tooltip-class-name="red"
+        data-tooltip-type={TYPES.INFO}
         ref={refTooltip}
       >Hover to me</button>
       <button
@@ -23,6 +25,7 @@ function App({ refTooltip }) {
 export default withTooltip({
   children: (options, some, one) => {
   },
+  type: TYPES.SUCCESS,
   onAppear: () => console.log(`Before appear`),
   onDisappear: () => console.log('Disappear')
 })(App);

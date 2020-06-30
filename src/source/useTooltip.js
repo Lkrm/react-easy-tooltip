@@ -1,13 +1,13 @@
 import ReactDOM from 'react-dom';
 import { useCallback, useEffect, useRef } from 'react';
-import { CLASS_NAME } from './constants';
+import { CLASS_NAME, CLASS_NAMES_BY_TYPES } from './constants';
 import { nothing } from './helpers';
 
 const compareTooltipByDataAttributes = (tooltipInstance, element) => {
   const tooltip = tooltipInstance;
-  const { tooltipTitle, tooltipClassName } = element.dataset;
+  const { tooltipTitle, tooltipClassName, tooltipType } = element.dataset;
 
-  if (tooltipClassName) tooltip.className = `${CLASS_NAME} ${tooltipClassName}`;
+  if (tooltipClassName) tooltip.className = `${CLASS_NAME} ${CLASS_NAMES_BY_TYPES[tooltipType]}  ${tooltipClassName} `;
 
   if (tooltipTitle) tooltip.innerText = tooltipTitle;
 
@@ -15,7 +15,7 @@ const compareTooltipByDataAttributes = (tooltipInstance, element) => {
 }
 
 const prepareInstanceTooltipByOptions = (options, target) => {
-  const { children = null, className, to } = options;
+  const { children = null, className, type = '', to } = options;
   const elementTag = to ? 'a' : 'div';
 
   const tooltipElement = document.createElement(elementTag);
@@ -26,6 +26,8 @@ const prepareInstanceTooltipByOptions = (options, target) => {
   if (children) ReactDOM.render(children(options, target), tooltipElement)
 
   if (className) tooltipElement.className = `${CLASS_NAME} ${className}`;
+
+  if (type) tooltipElement.className = `${CLASS_NAMES_BY_TYPES[type]} ${tooltipElement.className}`;
 
   return tooltipElement;
 }
@@ -51,10 +53,12 @@ export const useTooltip = (options) => {
   },[options, onAppear]);
 
   const handleOut = useCallback(({ target }) => {
-    target.removeChild( refTooltip.current);
-    onDisappear({ options, tooltip: refTooltip.current, element: target });
-    refTooltip.current = null;
-  }, [options, onDisappear]);
+    if (refTooltip.current) {
+      target.removeChild( refTooltip.current);
+      onDisappear({ options, tooltip: refTooltip.current, element: target });
+      refTooltip.current = null;
+    }
+  }, [options, onDisappear, refTooltip]);
 
   useEffect(() => {
     const { current: listOfElements } = elements;
